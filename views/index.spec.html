@@ -204,11 +204,6 @@
           });
         }));
 
-        afterEach(function() {
-          http.verifyNoOutstandingExpectation();
-          http.verifyNoOutstandingRequest();
-        });
-
         it("cleanupText should purge extra spaces and transform angle brackets", function() {
           expect(ctrl.cleanupText(testText)).toEqual(testText);
           expect(ctrl.cleanupText(testText, {
