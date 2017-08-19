@@ -219,6 +219,7 @@ app.controller('SearchController', function($http, $scope) {
     if(errors) return;
 
     $http.post("/add-comment", {
+      username: search.username,
       text: validText
     }).then(function success(data) {
       console.log(data);
@@ -256,8 +257,6 @@ app.filter("reverse", function () {
 app.filter("rawHTML", function ($sce) {
   return function (data) {
     var newData = $sce.trustAsHtml(data);
-    console.log("old: ", data);
-    console.log("new:", newData.$$unwrapTrustedValue());
     return newData;
   }
 });
