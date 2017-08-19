@@ -3,6 +3,8 @@ var fs = require("fs");
 var bodyParser = require("body-parser");
 var express = require("express");
 var app = express();
+var http = require("http").Server(app);
+var io = require('socket.io')(http);
 var PORT = process.env["PORT"] || 3005;
 
 // YES, these variable names are ridiculously long, but that's intentional for the sake of this demo, that this setup is not 100% accurate to a normal server setup
@@ -61,6 +63,7 @@ var queryUsers = function(req, res) {
   res.send(filteredUsers);
 }
 
+var addCommentRelay;
 var addComment = function(req, res) {
   var username = req.body.username || "Username";
   var text = req.body.text;
@@ -86,6 +89,8 @@ var addComment = function(req, res) {
 
   if(errors.length === 0) {
     commentsThatShouldBeInADatabase.push(newComment);
+
+    if(typeof addCommentRelay === "function") addCommentRelay(newComment);
 
     res.status(200).send("okay");
   } else {
@@ -120,14 +125,13 @@ app
   res.status(404).send("Not Found");
 })
 
-app.listen(PORT, function () {
-  console.log("Listening on port:", PORT);
+io.on('connection', function(socket){
+  addCommentRelay = function (newComment) {
+    console.log("relay");
+    socket.emit("comment", newComment);
+  }
 });
 
-module.exports = {
-  commentsThatShouldBeInADatabase,
-  getUsers,
-  getComments,
-  queryUsers,
-  addComment,
-}
+http.listen(PORT, function () {
+  console.log("Listening on port:", PORT);
+});

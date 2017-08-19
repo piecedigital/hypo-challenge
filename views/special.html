@@ -162,7 +162,7 @@
               </ul>
               <input type="text" name="" value="" class="username-input {{search.errors.username ? 'error' : ''}}" ng-model="search.username">
               <span class="error-report">{{search.errors.username}}</span>
-              <textarea class="comment-input {{!search.minCharsReached ? 'incomplete' : ''}}" type="text" my-change ng-model="search.text" ng-change="search.onChange()" placeholder="Enter a name here"></textarea>
+              <textarea class="comment-input {{!search.minCharsReached ? 'incomplete' : ''}}" type="text" my-change ng-model="search.textareaText" ng-change="search.onChange()" placeholder="Enter a name here"></textarea>
               <span class="error-report">{{search.errors.comment}}</span>
             </div>
             <button class="submit-btn" type="submit" name="button">Submit</button>
@@ -182,6 +182,7 @@
       </div>
     </div>
     <script type="text/javascript"src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
     <script type="text/javascript" src="js/main.js"></script>
   </body>
 </html>

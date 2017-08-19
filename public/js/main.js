@@ -51,7 +51,7 @@ app.controller('SearchController', function($http, $scope) {
   search.textareaText = "";
   search.characterMinimum = 40;
   search.minCharsReached = false;
-  search.characterCount = 0;
+  search.characterCount = 0 - search.characterMinimum;
   search.errors = {
     username: null,
     comment: null,
@@ -71,6 +71,7 @@ app.controller('SearchController', function($http, $scope) {
     var validText = search.cleanupText(search.textareaText, {
       clearSpaces: true
     });
+
     search.characterCount = validText.length - search.characterMinimum;
     if(validText.length - 40 >= 0) {
       search.minCharsReached = true;
@@ -170,20 +171,22 @@ app.controller('SearchController', function($http, $scope) {
   }
 });
 
-app.controller("CommentsController", function ($http) {
+app.controller("CommentsController", function ($http, $scope, socket) {
   var comments = this;
   comments.results = [];
 
-  comments.getComments = function() {
-    $http.get("/get-comments").then(function success(data) {
-      comments.results = data.data;
-    }, function error(data) {
-      console.error(data);
-    });
+  comments.setComment = function(data) {
+    comments.results.push(data);
   }
 
-  comments.getComments();
-  setInterval(comments.getComments, 1000);
+  socket.on("comment", comments.setComment);
+
+  $http.get("/get-comments").then(function success(data) {
+    console.log(data);
+    data.data.map(data => comments.setComment(data));
+  }, function error(data) {
+    console.error(data);
+  });
 });
 
 app.filter("reverse", function () {
@@ -200,4 +203,19 @@ app.filter("rawHTML", function ($sce) {
     console.log("new:", newData.$$unwrapTrustedValue());
     return newData;
   }
+});
+
+// source: https://www.html5rocks.com/en/tutorials/frameworks/angular-websockets/
+app.factory("socket", function ($rootScope) {
+  var socket = io();
+  return {
+    on: function (eventName, callback) {
+      socket.on(eventName, function () {
+        var args = arguments;
+        $rootScope.$apply(function () {
+          callback.apply(socket, args);
+        });
+      });
+    }
+  };
 });
