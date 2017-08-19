@@ -72,6 +72,7 @@ app.directive('keyAction', function() {
         search.resetResults();
       }
 
+      // if mentioning, set end of selection and query for users
       if(search.mentioning) {
         search.searchEnd = elem.selectionStart;
         search.getUsers(search.searchStart, elem.selectionStart);

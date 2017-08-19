@@ -6,6 +6,8 @@ This is the primary controller that handles user input in the username and comme
 
 - onChange - handles the `change` event for the main comment input
 
+- setResultSelection - when the user suggestion module is up/the user is attempting to mention someone, this value indicates who they're selecting with arrow key movement
+
 - getUsers - fetches user data to the server
 
 - setData - sets user data fetched from the server
