@@ -157,11 +157,12 @@ app.controller('SearchController', function($http, $scope) {
     var regex = new RegExp("\.{1," + search.searchStart + "\}(.\{1," + (search.searchEnd - search.searchStart) + "\})");
     // if the user is inserting a name while leaving no space between the text ahead, inset a space
     var spaceCharacter = "";
-    // try to match a space or nothing
+    // try to match a space
     var match = !search
       .textareaText
       .slice(search.searchEnd, search.searchEnd+1)
-      .match(/(\s|$^)/);
+      .match(/(\s)/);
+      // .match(/(\s|$^)/);
 
     if( match ) spaceCharacter = " ";
 
