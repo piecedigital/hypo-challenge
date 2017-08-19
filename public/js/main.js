@@ -4,11 +4,51 @@ if(primaryInputElem) primaryInputElem.focus();
 
 var app = angular.module('searchApp', []);
 
-app.directive('myChange', function() {
+app.directive('keyAction', function() {
   return function(scope, element) {
-    element.bind('keyup', function() {
-      var elem = element[0];
-      var search = scope.search;
+    var search = scope.search;
+
+    element.bind('keydown', function(e) {
+      var elem = e.target;
+      // here we'll be checking for the common symbol for tagging users, "@"
+      var character = search.textareaText[search.searchStart-1];
+      // if we are mentioning someone and it hasn't been broken by the above condition, continue
+      if(search.mentioning && character && character === "@") {
+        // handle arrow key
+        switch (e.key) {
+          // arrow up/down, change the selection
+          case "ArrowUp":
+            e.preventDefault();
+            if(search.resultSelection > 0) {
+              search.setResultSelection(search.resultSelection-1);
+            } else {
+              search.setResultSelection(0);
+            }
+          break;
+          case "ArrowDown":
+            e.preventDefault();
+            if(search.resultSelection < search.results.length-1) {
+              search.setResultSelection(search.resultSelection+1);
+            } else {
+              search.setResultSelection(search.results.length-1);
+            }
+          break;
+          case "Enter":
+            // insert user
+            e.preventDefault();
+            console.log("enter");
+            search.insertUser(search.results[search.resultSelection]);
+            // update the view with the data
+            // this may not be the best solution but it was certainly better solution than the convoluted mess I might come up with based on lack of familiarity
+            // will update when a better solution is discovered
+            scope.$apply();
+          break;
+        }
+      }
+    });
+
+    element.bind('keyup', function(e) {
+      var elem = e.target;
       // here we'll be checking for the common symbol for tagging users, "@"
       var character = search.textareaText[search.searchStart-1];
       var character2 = search.textareaText[elem.selectionStart-1];
@@ -20,7 +60,7 @@ app.directive('myChange', function() {
       } else
       // if we are mentioning someone and it hasn't been broken by the above condition, continue
       if(search.mentioning && character && character === "@") {
-        // continue
+        // handle arrow key selection in the key down event
       } else
       // if the matching character is an @, start mentioning here
       if(character2 && character2 === "@") {
@@ -44,6 +84,7 @@ app.controller('SearchController', function($http, $scope) {
   // console.log("mounted", this, $scope);
   var search = this;
   search.results = [];
+  search.resultSelection = 0;
   search.mentioning = false;
   search.searchStart = 0;
   search.searchEnd = 0;
@@ -67,6 +108,7 @@ app.controller('SearchController', function($http, $scope) {
     return newStr;
   }
 
+  // event for when the textarea input is changed
   search.onChange = function () {
     var validText = search.cleanupText(search.textareaText, {
       clearSpaces: true
@@ -80,10 +122,22 @@ app.controller('SearchController', function($http, $scope) {
     }
   }
 
+  // set the results of the request to get users
   search.setData = function (data) {
     search.results = data;
   }
 
+  // sets the result selection number to input or the current value
+  search.setResultSelection = function (input) {
+    // update the value
+    if(typeof input !== "number") {
+      search.resultSelection = search.resultSelection;
+    } else {
+      search.resultSelection = input;
+    }
+  }
+
+  // fetch users from the server
   search.getUsers = function (start, end) {
     var stringSlice = search.textareaText.slice(start, end)
 
@@ -92,13 +146,13 @@ app.controller('SearchController', function($http, $scope) {
     $http.post("/query-users", {
       query: stringSlice
     }).then(function success(data) {
-      console.log(data.data);
       search.setData(data.data);
     }, function error(data) {
       console.error(data);
     });
   }
 
+  // inserts the username of a selected user into the text box
   search.insertUser = function (result) {
     var regex = new RegExp("\.{1," + search.searchStart + "\}(.\{1," + (search.searchEnd - search.searchStart) + "\})");
     // if the user is inserting a name while leaving no space between the text ahead, inset a space
@@ -116,8 +170,10 @@ app.controller('SearchController', function($http, $scope) {
       return search.textareaText.slice(0, search.searchStart) + result.username + spaceCharacter
     });
     search.textareaText = replacementText;
+    console.log(search.textareaText);
     search.resetResults();
     search.resetSelection();
+    primaryInputElem.focus();
   }
 
   search.resetResults = function () {
@@ -127,6 +183,7 @@ app.controller('SearchController', function($http, $scope) {
   search.resetSelection = function () {
     search.searchStart = 0;
     search.searchEnd = 0;
+    search.resultSelection = 0;
   }
 
   search.resetInputs = function () {
@@ -134,6 +191,7 @@ app.controller('SearchController', function($http, $scope) {
     search.textareaText = "";
   }
 
+  // send the new comment to the server
   search.submit = function (e) {
     var validText = search.cleanupText(search.textareaText, {
       clearSpaces: true,
@@ -182,7 +240,6 @@ app.controller("CommentsController", function ($http, $scope, socket) {
   socket.on("comment", comments.setComment);
 
   $http.get("/get-comments").then(function success(data) {
-    console.log(data);
     data.data.map(data => comments.setComment(data));
   }, function error(data) {
     console.error(data);

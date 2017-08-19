@@ -3,145 +3,7 @@
   <head>
     <meta charset="utf-8">
     <title>Leave a Comment</title>
-    <style media="screen">
-      html {
-        font-family: "impact", sans-serif;
-      }
-      *, *:before, *:after {
-        box-sizing: border-box;
-      }
-      body {
-        margin: 0;
-      }
-      .app-wrap {
-        width: 100vw;
-        height: 100%;
-        min-height: 100vh;
-        padding-top: 50px;
-        background-color: rgba(220, 220, 255, 1);
-      }
-      .comment-module-wrap {
-        display: block;
-        width: 100%;
-        max-width: 500px;
-        margin: 0 auto;
-        padding: 8px;
-      }
-      .comment-module, .all-comments-module {
-        padding: 8px;
-        border-radius: 5px;
-        box-shadow: 0 0 4px 0px black;
-        background-color: rgba(150, 150, 200, 1);
-        color: rgba(10, 10, 60, 1);
-      }
-      .title {
-        text-align: center;
-      }
-      .title h1 {
-        margin: 0;
-      }
-      .comment-input-wrap {
-        position: relative;
-      }
-      .user-list {
-        position: absolute;
-        top: 100%;
-        left: 0;
-        width: 100%;
-        padding: 0;
-        margin: 0;
-        transform: translate(0, -4px);
-        background-color: white;
-        border: 1px solid rgba(20, 20, 70, 1);
-        border-radius: 0 0 5px 5px;
-      }
-      .user-list-item {
-        display: block;
-        padding: 4px;
-      }
-      .user-list-item:hover, .user-list-item.focused {
-        background-color: rgba(200, 200, 250, 1);
-      }
-      .user-list-item:not(:last-child) {
-        border-bottom: 1px solid black;
-      }
-      .user-list-item a {
-        display: flex;
-        align-items: center;
-        color: rgba(10, 10, 60, 1);
-      }
-      .user-list-item a img {
-        width: 32px;
-        height: 32px;
-        border-radius: 100%;
-      }
-      .user-list-item a span {
-        padding: 0 5px;
-      }
-      .username-input, .comment-input {
-        width: 100%;
-        padding-bottom: 20px;
-        border-radius: 4px;
-        border-width: 1;
-        border-color: rgba(20, 20, 70, 1);
-      }
-      .comment-input {
-        margin: 8px 0 0;
-        min-height: 100px;
-      }
-      .comment-input.incomplete {
-        border-color: red;
-        border-width: 2px;
-      }
-      .character-counter {
-        font-size: 14px;
-        font-family: sans-serif;
-      }
-      .character-counter.incomplete {
-        color: red;
-      }
-      .submit-btn {
-        padding: 6px;
-        margin: 8px 0 0;
-        border: none;
-        background-color: rgba(20, 20, 70, 1);
-        color: white;
-        cursor: pointer;
-      }
-      .submit-btn:hover {
-        background-color: rgba(50, 50, 100, 1);
-      }
-      .error-report {
-        color: red;
-        font-size: 14px;
-        font-family: sans-serif;
-      }
-      .all-comments-module {
-        margin-top: 16px;
-      }
-      .all-comments {
-        padding: 0;
-        margin: 0;
-      }
-      .comment {
-        display: block;
-        padding: 8px;
-        border-radius: 5px;
-        background-color: rgba(235, 235, 255, 1);
-      }
-      .comment:not(:last-child) {
-        margin-bottom: 8px;
-      }
-      .comment span {
-        display: block;
-        border-bottom: 1px solid rgba(20, 20, 70, 1);
-      }
-      .comment p {
-        margin: 0;
-        padding: 8px 0 0;
-        font-family: sans-serif;
-      }
-    </style>
+    <link rel="stylesheet" href="/css/style.css">
   </head>
   <body>
     <div class="app-wrap">
@@ -153,7 +15,7 @@
           <form ng-submit="search.submit($event)">
             <div class="comment-input-wrap">
               <ul class="user-list" ng-hide="!(search.results.length > 0)">
-                <li class="user-list-item" ng-repeat="result in search.results">
+                <li ng-repeat="result in search.results" class="user-list-item {{$index === search.resultSelection ? 'focused' : ''}}">
                   <a href="#" ng-click="search.insertUser(result)">
                     <img src="{{result.avatar_url}}" alt="">
                     <span>{{result.name}} ({{result.username}})</span>
@@ -162,7 +24,7 @@
               </ul>
               <input type="text" name="" value="" class="username-input {{search.errors.username ? 'error' : ''}}" ng-model="search.username">
               <span class="error-report">{{search.errors.username}}</span>
-              <textarea class="comment-input {{!search.minCharsReached ? 'incomplete' : ''}}" type="text" my-change ng-model="search.textareaText" ng-change="search.onChange()" placeholder="Enter a name here"></textarea>
+              <textarea class="comment-input {{!search.minCharsReached ? 'incomplete' : ''}}" type="text" key-action ng-model="search.textareaText" ng-change="search.onChange()" placeholder="Enter a name here"></textarea>
               <span class="error-report">{{search.errors.comment}}</span>
             </div>
             <button class="submit-btn" type="submit" name="button">Submit</button>
