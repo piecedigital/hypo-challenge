@@ -1,3 +1,5 @@
+![asdf](http://i.imgur.com/ww4pmkD.gif)
+
 ## How to run
 
 Prerequisites: You need NodeJS installed. This was developed on Node version 6.11.0, but some older versions (like 4.x) should work just fine.
